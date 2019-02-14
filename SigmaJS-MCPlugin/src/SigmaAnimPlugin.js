@@ -49,7 +49,6 @@ class SigmaAnimPlugin extends MC.TimedIncident {
      */
     onProgress(progress, millisecond) {
         this.SigmaAnimation.changeFrame(progress);
-        console.log(progress, millisecond)
     };
 }
 
