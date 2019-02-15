@@ -18,29 +18,31 @@ TO RUN ON 0.0.0.0:8080
 
 /* TODO */
 PLUGINS OF SIGMAJS TO CHECK/IMPLEMENT ON MC-SIGMAJS {
-    neo4j.cypher
-    parsers.gexf
-    parsers.json
-    pathfinding.astar
-    plugins.filter
-    plugins.neighborhoods
-    plugins.relativeSize
+    renderers.parallelEdges
     renderers.customEdgeShapes
     renderers.customEdgeShapes
     renderers.edgeDots
     renderers.edgeLabels
-    renderers.parallelEdges
     renderers.snapshot
     statistics.HITS
+    plugins.neighborhoods ???
+    plugins.filter ???
+    plugins.relativeSize ???
+
 }
 
 
 PLUGINS OF SIGMAJS THAT CURRENTLY CANNOT
  BE IMPLEMENTED IN MC-SIGMAJS {
     layout.noverlap
+    neo4j.cypher |
+    parsers.gexf |
+    parsers.json | -> ways to import graphs from server queries 
  }
 
  PLUGINS OF SIGMAJS SUCCESFULY IMPLEMENTED IN MC-SIGMAJS {
-    plugins.animate
-    plugins.dragNodes
+    plugins.animate --> implemented allowing MC to call requestAnimationFrame
+                        function instead of sigma
+    plugins.dragNodes --> resets the graph to he result after the drag
+    pathfinding.astar --> included in sigma cmd parameters
  }

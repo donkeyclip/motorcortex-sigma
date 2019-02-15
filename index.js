@@ -22,8 +22,8 @@ const containerParams = {
 }
 
 
-const nodes = 1000;
-const edges = 50;
+const nodes = 300;
+const edges = 15;
 const clusters = 5;
 
 var square = {nodes:[], edges:[],name:"square"};
@@ -42,13 +42,24 @@ for (var i = 0; i < nodes; i++) {
         color: 'rgb(255,255,255)',
         colorFinal: 'rgb(255,255,255)',
     })
-}  
-for (var i = 0; i < edges; i++)
-square.edges.push({
+};  
+for (var i = 0; i < edges; i++) {
+    square.edges.push({
         id: 'e' + i,
         source: 'n' + (Math.random() * nodes | 0),
         target: 'n' + (Math.random() * nodes | 0)
-});
+    })
+//     square.edges.push({
+//         id: 'e' + i,
+//         label: 'Edge ' + i,
+//         source: 'n' + (Math.random() * nodes | 0),
+//         target: 'n' + (Math.random() * nodes | 0),
+//         size: Math.random(),
+//         color: '#ccc',
+//         type: 'curvedArrow',
+//         count: i
+//       });
+};
 
 
 var circle = {nodes:[], edges:[],name:"circle"};
@@ -86,14 +97,18 @@ window.clip = new Sigma.Clip(
             N: nodes,  //nodes of graph
             E: edges,  //edges of graph
             // C: clusters, // clusters to organize nodes
-            rendererType: 'webgl',
+            rendererType: 'canvas',
             customGraph: square,
             settings: {
-                drawEdges: false,
+                drawEdges: true,
                 drawLabels: true,
             }, 
             options: {
                 drag_nodes: true,
+                parallelEdges: true,
+                // relative_size: 4
+            },
+            cmd : {
             }
         }
     },

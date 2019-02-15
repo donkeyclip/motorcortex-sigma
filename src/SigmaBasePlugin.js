@@ -33,9 +33,24 @@ class SigmaBasePlugin extends MC.ExtendableClip {
      */
     init(newGraph) {
         // import all necessary plugins in this.plugins
-        this.plugins.drag_nodes = require("sigma/plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes")
         this.plugins.animate = require("sigma/plugins/sigma.plugins.animate/sigma.plugins.animate")
-        this.plugins.noOverlap = require("sigma/plugins/sigma.layout.noverlap/sigma.layout.noverlap")
+        if (this.attrs.attrs.options.parallelEdges) {
+            if (!this.plugins.parallelE) {
+                this.plugins.parallelE = [];
+                this.plugins.parallelE.edgehovers = [];
+                this.plugins.parallelE.edges = [];
+                this.plugins.parallelE.edges.labels = [];
+                this.plugins.parallelE.edgehovers.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edgehovers.curve")
+                this.plugins.parallelE.edgehovers.curvedArrow = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edgehovers.curvedArrow")
+                this.plugins.parallelE.edges.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.curve")
+                this.plugins.parallelE.edges.curvedArrow = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.curvedArrow")
+                this.plugins.parallelE.edges.labels.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.labels.curve")
+                this.plugins.parallelE.utils = require("sigma/plugins/sigma.renderers.parallelEdges/utils")
+            }
+        }
+        
+        this.plugins.relativeSize = require("sigma/plugins/sigma.plugins.relativeSize/sigma.plugins.relativeSize")
+        this.plugins.pathFinding = require("sigma/plugins/sigma.pathfinding.astar/sigma.pathfinding.astar")
 
         // initialize all variables necessary for instanciating sigma with a graph
         this.props.container = this.rootElement;
@@ -100,8 +115,23 @@ class SigmaBasePlugin extends MC.ExtendableClip {
      * Initializes all plugins
      */
     initializePlugins() {
+        
+
+
+
+        // relative sizing of nodes according to their degree
+        // if (this.attrs.attrs.options.relative_size) {
+        //     console.log(sigma.plugins.relativeSize)
+        //     sigma.plugins.relativeSize(this.context.s, this.attrs.attrs.options.relative_size)
+        //     this.context.s.refresh();
+        // }
+
         // drag_nodes plugin initialization MUST BE ONGOING
         if (this.attrs.attrs.options.drag_nodes) {
+            if (!this.plugins.drag_nodes) {
+                this.plugins.drag_nodes = require("sigma/plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes")
+            }
+
             var dragListener = sigma.plugins.dragNodes(this.context.s, this.context.s.renderers[0]);
 
             dragListener.bind('startdrag', event => {});
@@ -240,6 +270,10 @@ class SigmaBasePlugin extends MC.ExtendableClip {
         for (var key in cmd) {
             if (key == "cameraCMD") {
                 this.context.s.cameras.cmd[key][0]
+            }
+
+            if (key == "graphCMD") {
+                this.context.s.graph[key](...cmd[key][subKey])
             }
 
             for (var subKey in cmd[key]) {
