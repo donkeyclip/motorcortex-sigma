@@ -1,48 +1,112 @@
-BEFORE RUNNING: TYPE IN THE FOLLOWING COMMANDS
-    npm init
-    npm install
+Author: Vasileios Georgopoulos
+Date: 2/18/2019
+Version: 1.0.0
+----------------------------------
+SIGMA-JS PLUGIN FOR MOTOR CORTEX 2
 
-    (if that fails run the following:
-        npm init
-        npm install webpack
-        npm install webpack-dev-server
-        npm install webpack-cli
-        npm install babel-loader
-        npm install @babel/core
-    )
+Sigma-JS library instanciates and renders graphs with any number of nodes and
+edges in a web container. The MotorCortex implementation embeds these instanciates
+and any animations performed on them within Groups of Incidents. Each Group refers 
+to a different graph and therefore a different instance of sigma. Each Group can 
+be a host to child-incidents that perform animations on the said sigma graph. 
 
-TO RUN ON 0.0.0.0:8080
-    npm run build
-    npm start
+Various options are available for the user, from different renderers and display 
+properties, to exporting data and images from the rendered graphs (see inner 
+documentation and Sigma-JS plugins implemented in this version below)
 
-
-/* TODO */
-PLUGINS OF SIGMAJS TO CHECK/IMPLEMENT ON MC-SIGMAJS {
-    renderers.parallelEdges
-    renderers.customEdgeShapes
-    renderers.customEdgeShapes
-    renderers.edgeDots
-    renderers.edgeLabels
-    renderers.snapshot
-    statistics.HITS
-    plugins.neighborhoods ???
-    plugins.filter ???
-    plugins.relativeSize ???
-
+INSTRUCTIONS FOR BASIC USE OF SIGMA-JS MC PLUGIN:
+-The user can either create their own graph or provide a certain number of nodes (N),
+edges (E) and clusters (C) (optional). The graph must be an array containing a nodes
+and an edges array. Each of those must contain node and edge objects following this 
+template:
+graph.nodes[i] = {
+    id: 'n'+i,
+    lavel: 'Node ' + i, //user may change this
+    x: xCoordinate,
+    y: yCoordinate,
+    size: decimal, (the size of node)
+    color: colorOfNode (rgb or hex)
+}
+graph.edges[i] = {
+    id: 'e' + i,
+    label: 'Edge ' + i, (optional)
+    source: 'n' + a,
+    target: 'n' + b,
+    size: sizeOfEdge,
+    color: colorOfEdge
 }
 
+Creating a SigmaBasePlugin instance requires certain attributes and properties:
+attrs = {
+    attrs:{
+        N: numberOfNodes,
+        E: numberOfEdges,
+        C: numberOfClusters, (optional)
+        rendererType: DefaultIsCanvas (note that most feature of the current version only work in canvas)
+        customGraph: userProvidedCustomGraph
+        settings:{
+            any setting provided in sigma.settings.js
+        },
+        options:{
+            drag_nodes: T/F,
+            parallelEdges: T/F,
+            edgeCurve: T/F,
+            customEdgeShapes: T/F,
+            edgeLabels: T/F
+        },
+        cmd: {
+            sigmaFunction: {
+                params
+            }
+        }
+    }
+}
+props = {
+    css of group,
+    host element of group,
+    html of group,
+    containerParameters of host element 
+}
 
-PLUGINS OF SIGMAJS THAT CURRENTLY CANNOT
- BE IMPLEMENTED IN MC-SIGMAJS {
-    layout.noverlap
-    neo4j.cypher |
-    parsers.gexf |
-    parsers.json | -> ways to import graphs from server queries 
- }
+*NOTE* Simply instanciating Sigma will render the given graph.
 
- PLUGINS OF SIGMAJS SUCCESFULY IMPLEMENTED IN MC-SIGMAJS {
-    plugins.animate --> implemented allowing MC to call requestAnimationFrame
-                        function instead of sigma
-    plugins.dragNodes --> resets the graph to he result after the drag
-    pathfinding.astar --> included in sigma cmd parameters
- }
+Animation Child-Incidents of group are defined as follows:
+new Sigma.SigmaAnimPlugin(
+    //attrs
+    {
+        attrs:{
+            master: theParentGroup
+        },
+        animatedAttrs:{
+            finalG: the final form of the graph
+        }   
+    },
+    //props
+    {
+        duration: the duration of the animation in milliseconds,
+        selector: DOM selector of the host element
+    }
+);
+And then added to the group as follows:
+groupName.addIncident(childIncidentName, millisecondTimeStart)
+
+
+
+
+The following plugins of the SigmaJS library are currently supported by the
+MC SigmaJS plugin implementation (most are exclusive to the canvas renderer):
+    -plugins.animate --> implemented allowing MC to call requestAnimationFrame
+        function instead of sigma
+    -plugins.dragNodes --> resets the graph to he result after the drag
+    -renderers.parallelEdges --> custom graph creation includes parallel edges.
+    -renderers.customEdgeShapes --> renderers support custom edge creation
+        for dashed, dotted, parallel and taperred edges (only compatible with canvas)
+    -renderers.edgeDots --> renderers support the creation of curved edges/arrows
+    -renderers.edgeLabels --> renderers support display of edge labels
+    -renderers.snapshot --> can export an image file directly from a renderer
+    -plugins.neighborhoods --> can export the nodes that a node is connected to
+        (the node's neighborhood)
+    -statistics.HITS --> can export Hub and Authority statistics about the 
+        nodes of a graph.
+    -pathfinding.astar  --> can export an array demonstrating the path from 2 
+        target nodes (using the alpha-star algorithm)

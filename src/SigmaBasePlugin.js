@@ -3,8 +3,20 @@ const WebComponentContextHandler = require("@kissmybutton/motorcortex/dist/coreP
 const sigma = require("sigma");
 
 
-
+/**
+ * Grouping of Main Sigma instance "incident" supporting animation
+ * child-incidents. Renders the graph and imports all relevant plugins
+ *
+ * @class SigmaBasePlugin
+ * @extends {MC.ExtendableClip}
+ */
 class SigmaBasePlugin extends MC.ExtendableClip {
+    /**
+     *Creates an instance of SigmaBasePlugin.
+     * @param {*} attrs attributes of sigma and graph creatin commands
+     * @param {*} props properties of sigma instanciation (not used)
+     * @memberof SigmaBasePlugin
+     */
     constructor(attrs, props) {
         //conditional imports for performance
         super(attrs, props);
@@ -32,41 +44,7 @@ class SigmaBasePlugin extends MC.ExtendableClip {
      * along with its container
      */
     init(newGraph) {
-        // import all necessary plugins in this.plugins
-        this.plugins.animate = require("sigma/plugins/sigma.plugins.animate/sigma.plugins.animate")
-        if (this.attrs.attrs.options.parallelEdges) {
-            if (!this.plugins.parallelE) {
-                this.plugins.parallelE = [];
-                this.plugins.parallelE.edgehovers = [];
-                this.plugins.parallelE.edges = [];
-                this.plugins.parallelE.edges.labels = [];
-                this.plugins.parallelE.edgehovers.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edgehovers.curve")
-                this.plugins.parallelE.edgehovers.curvedArrow = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edgehovers.curvedArrow")
-                this.plugins.parallelE.edges.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.curve")
-                this.plugins.parallelE.edges.curvedArrow = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.curvedArrow")
-                this.plugins.parallelE.edges.labels.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.labels.curve")
-                this.plugins.parallelE.utils = require("sigma/plugins/sigma.renderers.parallelEdges/utils")
-            }
-        }
-        
-        this.plugins.relativeSize = require("sigma/plugins/sigma.plugins.relativeSize/sigma.plugins.relativeSize")
-        this.plugins.pathFinding = require("sigma/plugins/sigma.pathfinding.astar/sigma.pathfinding.astar")
-
-        // initialize all variables necessary for instanciating sigma with a graph
-        this.props.container = this.rootElement;
-        this.context.N = this.attrs.attrs.N;
-        this.context.E = this.attrs.attrs.E;
-        this.context.C = this.attrs.attrs.C;
-        this.context.cs = [];
-        this.context.o;
-        this.context.settings = this.attrs.attrs.settings;
-        this.context.options = this.attrs.attrs.options;
-        if (!this.attrs.attrs.rendererType) {
-            this.context.defaultRenderType = 'canvas';
-        } 
-        else {
-            this.context.defaultRenderType = this.attrs.attrs.rendererType;
-        }
+        this.pluginImports();
 
         // establish which graph to create and call the appropriate function
         if (!newGraph) {
@@ -107,32 +85,22 @@ class SigmaBasePlugin extends MC.ExtendableClip {
             });
         }
 
-        this.initializePlugins();
+        this.initializeDrag();
         this.methodUpdate(this.cmd);
     }
 
     /**
-     * Initializes all plugins
+     * Initializes dragNodes plugin if applicable
      */
-    initializePlugins() {
-        
-
-
-
-        // relative sizing of nodes according to their degree
-        // if (this.attrs.attrs.options.relative_size) {
-        //     console.log(sigma.plugins.relativeSize)
-        //     sigma.plugins.relativeSize(this.context.s, this.attrs.attrs.options.relative_size)
-        //     this.context.s.refresh();
-        // }
-
+    initializeDrag() {
         // drag_nodes plugin initialization MUST BE ONGOING
         if (this.attrs.attrs.options.drag_nodes) {
             if (!this.plugins.drag_nodes) {
                 this.plugins.drag_nodes = require("sigma/plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes")
             }
 
-            var dragListener = sigma.plugins.dragNodes(this.context.s, this.context.s.renderers[0]);
+            var dragListener = 
+                sigma.plugins.dragNodes(this.context.s, this.context.s.renderers[0]);
 
             dragListener.bind('startdrag', event => {});
             dragListener.bind('drag', event => {});
@@ -166,7 +134,6 @@ class SigmaBasePlugin extends MC.ExtendableClip {
             g.nodes.push(
                 this.context.customNodes[i]
             );
-
         }
         for (var i = 0; i < this.context.E; i++) {
             g.edges.push(
@@ -240,7 +207,8 @@ class SigmaBasePlugin extends MC.ExtendableClip {
                         target: 'n' + ((Math.random() * this.context.N) | 0)
                     });
                 else {
-                    this.context.o = this.context.cs[(Math.random() * this.context.C) | 0]
+                    this.context.o = 
+                        this.context.cs[(Math.random() * this.context.C) | 0]
                     g.edges.push({
                         id: 'e' + i,
                         source: this.context.o.nodes[(Math.random()
@@ -254,14 +222,14 @@ class SigmaBasePlugin extends MC.ExtendableClip {
     }
 
     /**
-     * resets content of the passed containers
+     * resets content of the passed containers to prepare for a change
+     * in the cameras/renderers display
      */
     changePrep(containers) {
         for (var cont in containers) {
             containers[cont].innerHTML = "";
         }
     }
-
 
     /**
      * Calls the methods passed to cmd
@@ -272,10 +240,6 @@ class SigmaBasePlugin extends MC.ExtendableClip {
                 this.context.s.cameras.cmd[key][0]
             }
 
-            if (key == "graphCMD") {
-                this.context.s.graph[key](...cmd[key][subKey])
-            }
-
             for (var subKey in cmd[key]) {
                 this.context.s[key](...cmd[key][subKey]);
             }
@@ -283,6 +247,146 @@ class SigmaBasePlugin extends MC.ExtendableClip {
         this.context.s.refresh();
     }
 
+    /**
+     * import all necessary plugins in this.plugins
+     */
+    pluginImports() {
+        // supports parallel edges when there are more than one edge
+        // with the same target and same source nodes
+        if (this.attrs.attrs.options.parallelEdges) {
+            if (!this.plugins.parallelE) {
+                this.plugins.parallelE = [];
+                this.plugins.parallelE.edgehovers = [];
+                this.plugins.parallelE.edges = [];
+                this.plugins.parallelE.edges.labels = [];
+                this.plugins.parallelE.edgehovers.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edgehovers.curve")
+                this.plugins.parallelE.edgehovers.curvedArrow = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edgehovers.curvedArrow")
+                this.plugins.parallelE.edges.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.curve")
+                this.plugins.parallelE.edges.curvedArrow = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.curvedArrow")
+                this.plugins.parallelE.edges.labels.curve = require("sigma/plugins/sigma.renderers.parallelEdges/sigma.canvas.edges.labels.curve")
+                this.plugins.parallelE.utils = require("sigma/plugins/sigma.renderers.parallelEdges/utils")
+            }
+        }
+        
+        // initialize all variables necessary for instanciating sigma with a graph
+        this.props.container = this.rootElement;
+        this.context.N = this.attrs.attrs.N;
+        this.context.E = this.attrs.attrs.E;
+        this.context.C = this.attrs.attrs.C;
+        this.context.cs = [];
+        this.context.o;
+        this.context.settings = this.attrs.attrs.settings;
+        this.context.options = this.attrs.attrs.options;
+
+        // setup or defaultize the renderer type that the Sigma instance will use to
+        // display the graph
+        if (!this.attrs.attrs.rendererType) {
+            this.context.defaultRenderType = 'canvas';
+        } 
+        else {
+            this.context.defaultRenderType = this.attrs.attrs.rendererType;
+        }
+
+        // support for curved edges (compatible only with canvas renderer)
+        if (this.attrs.attrs.options.edgeCurve == true) {
+            if (this.context.defaultRenderType !== 'canvas') {
+                throw "Custom renderers are only compatible with 'canvas' renderer";
+            }
+            this.plugins.edgeCurve = [
+                require("sigma/plugins/sigma.renderers.edgeDots/sigma.canvas.edges.dotCurve"),
+                require("sigma/plugins/sigma.renderers.edgeDots/sigma.canvas.edges.dotCurvedArrow")
+            ]
+        }
+
+        // supporting provided custom edge shapes compatible with canvas renderer
+        if (this.attrs.attrs.options.customEdgeShapes == true) {
+            if (this.context.defaultRenderType !== 'canvas') {
+                throw "Custom renderers are only compatible with 'canvas' renderer";
+            }
+            this.plugins.customEdgeShapes = [
+                require("sigma/plugins/sigma.renderers.customEdgeShapes/sigma.canvas.edgehovers.dashed"),
+                require("sigma/plugins/sigma.renderers.customEdgeShapes/sigma.canvas.edgehovers.dotted"),
+                require("sigma/plugins/sigma.renderers.customEdgeShapes/sigma.canvas.edgehovers.parallel"),
+                require("sigma/plugins/sigma.renderers.customEdgeShapes/sigma.canvas.edgehovers.tapered"),
+                require("sigma/plugins/sigma.renderers.customEdgeShapes/sigma.canvas.edges.dashed"),
+                require("sigma/plugins/sigma.renderers.customEdgeShapes/sigma.canvas.edges.dotted"),
+                require("sigma/plugins/sigma.renderers.customEdgeShapes/sigma.canvas.edges.parallel"),
+                require("sigma/plugins/sigma.renderers.customEdgeShapes/sigma.canvas.edges.tapered")
+            ]
+        }
+
+        // supports edge labels
+        if (this.attrs.attrs.options.edgeLabels == true) {
+            this.plugins.edgeLabels = [
+                require("sigma/plugins/sigma.renderers.edgeLabels/settings"),
+                require("sigma/plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.curve"),
+                require("sigma/plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.curvedArrow"),
+                require("sigma/plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.def"),
+            ]
+        }
+
+        /***********************
+         * Helper method plugins
+         */
+
+        // supports fetching HITS statistics for each node in the graph
+        if (!this.plugins.HITS) {
+            this.plugins.HITS = require("sigma/plugins/sigma.statistics.HITS/sigma.statistics.HITS");
+        }
+
+        // supports finding the path from a node to another using the Alpha-Star algorithm
+        if (!this.plugins.aStar) {
+            this.plugins.aStar = require("sigma/plugins/sigma.pathfinding.astar/sigma.pathfinding.astar");
+        }
+        
+        // supports fetching or downloading the rendered graph in formats png, jpeg, gif and tiff
+        if (!this.plugins.snapshot) {
+            this.plugins.snapshot = require("sigma/plugins/sigma.renderers.snapshot/sigma.renderers.snapshot");
+        }
+
+        // Importing and constructing the Neighborhoods plugin class to be 
+        // used further down in exponsed helper method neighborhood()
+        const Neighborhoods = require("sigma/plugins/sigma.plugins.neighborhoods/sigma.plugins.neighborhoods");
+        this.plugins.Neighborhoods = new sigma.plugins.neighborhoods();
+
+        // Animation plugin, necessary for any animated attributes of the s instance
+        this.plugins.animate = require("sigma/plugins/sigma.plugins.animate/sigma.plugins.animate");
+    }
+
+    /***********************************
+     * Helper methods for plugins called on the incident itself,
+     * they provide information drawn from the sigma graph
+     * ******************************/
+    
+     /**
+      * provides Authority and Hub measure (HITS statistics) for every 
+      * node in the graph of the sigma instance
+      */
+    HITS (isUndirected) {
+        return this.context.s.graph.HITS(isUndirected);
+    }
+
+    /**
+     * Computes path between two nodes using the Alpha-Star algorithm
+     */
+    aStarPathFinder (node1, node2, previousPathLength) {
+        return this.context.s.graph.astar(node1, node2, previousPathLength);
+    }
+
+    /**
+     * Fetches or downloads a snapshot of the graph in the said renderer
+     */
+    snapshot (i, params) {
+        return this.context.s.renderers[i].snapshot(params);
+    }
+
+    /** 
+     * returns a graph that is the neighborhood of the center node 
+     * passed as a parameter to this function
+     */
+    neighborhood (centerId) {
+        return this.context.s.graph.neighborhood(centerId);
+    }
 }
 
   

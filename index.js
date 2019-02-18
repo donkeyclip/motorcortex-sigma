@@ -21,9 +21,9 @@ const containerParams = {
     height: "90%"
 }
 
-
-const nodes = 300;
-const edges = 15;
+// Graph information
+const nodes = 500;
+const edges = 500;
 const clusters = 5;
 
 var square = {nodes:[], edges:[],name:"square"};
@@ -35,31 +35,21 @@ for (var i = 0; i < nodes; i++) {
         label: 'Node ' + i,
         x:xrand,
         y:yrand,
-        xFinal:xrand,
-        yFinal:yrand,
         size: Math.random(),
-        sizeFinal: Math.random(),
         color: 'rgb(255,255,255)',
-        colorFinal: 'rgb(255,255,255)',
     })
 };  
 for (var i = 0; i < edges; i++) {
     square.edges.push({
         id: 'e' + i,
+        label: 'Edge ' + i,
         source: 'n' + (Math.random() * nodes | 0),
-        target: 'n' + (Math.random() * nodes | 0)
-    })
-//     square.edges.push({
-//         id: 'e' + i,
-//         label: 'Edge ' + i,
-//         source: 'n' + (Math.random() * nodes | 0),
-//         target: 'n' + (Math.random() * nodes | 0),
-//         size: Math.random(),
-//         color: '#ccc',
-//         type: 'curvedArrow',
-//         count: i
-//       });
-};
+        target: 'n' + (Math.random() * nodes | 0),
+        size: Math.random(),
+        color: 'rgb(255,255,255)',
+        // type: 'curve',
+    });
+}
 
 
 var circle = {nodes:[], edges:[],name:"circle"};
@@ -73,12 +63,9 @@ for (var i = 0; i < nodes; i++) {
         label: 'Node' + i,
         x: r * Math.cos(theta),
         y: r * Math.sin(theta),
-        xFinal: r * Math.cos(theta),
-        yFinal: r * Math.sin(theta),
         size: Math.random(),
         sizeFinal: Math.random(),
         color: 'rgb(255,0,255)',
-        colorFinal: 'rgb(255,0,255)'
     }
     circle.nodes.push(node);
 }
@@ -86,7 +73,8 @@ for (i = 0; i < edges; i++)
 circle.edges.push({
     id: 'e' + i,
     source: 'n' + (Math.random() * nodes | 0),
-    target: 'n' + (Math.random() * nodes | 0)
+    target: 'n' + (Math.random() * nodes | 0),
+    color: 'rgb(255,0,255)',
 });
 
 
@@ -100,13 +88,16 @@ window.clip = new Sigma.Clip(
             rendererType: 'canvas',
             customGraph: square,
             settings: {
-                drawEdges: true,
-                drawLabels: true,
+                drawEdges: false,
+                drawLabels: false,
+                enableEdgeHovering: true
             }, 
             options: {
                 drag_nodes: true,
-                parallelEdges: true,
-                // relative_size: 4
+                parallelEdges: false,
+                edgeCurve: false,
+                customEdgeShapes: true,
+                edgeLabels: false
             },
             cmd : {
             }
@@ -120,8 +111,6 @@ window.clip = new Sigma.Clip(
         containerParams
     }
 );
-
-
 
 const animatedInc1 = new Sigma.SigmaAnimPlugin(
     //attrs
@@ -144,8 +133,6 @@ const animatedInc1 = new Sigma.SigmaAnimPlugin(
         // }
     }
 );
-
-
 
 const animatedInc2 = new Sigma.SigmaAnimPlugin(
     //attrs
@@ -175,3 +162,20 @@ window.player = new Player({
 window.tc = new MotorCortex.TimeCapsule();
 // var journey = tc.startJourney(player.clip)
 // journey.station(1000)
+
+const HITSStatistics = clip.HITS(false);
+// console.log(HITSStatistics);
+const path = clip.aStarPathFinder("n0", "n10", 10)
+// console.log(path);
+const snapshot = clip.snapshot(0, 
+    {
+        format: 'png',
+        background: 'black',
+        filename: 'my-graph.png',
+        labels: false,
+        download: false
+    }
+);
+// console.log(snapshot);
+const NGraph = clip.neighborhood("n12");
+// console.log(NGraph);

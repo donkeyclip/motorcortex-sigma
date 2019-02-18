@@ -4,6 +4,11 @@ const SigmaAnimation = require("../lib/SigmaAnimationPlugin.js")
 
 class SigmaAnimPlugin extends MC.TimedIncident {
 
+    /**
+     * Initialization of variables as soon as the context of the Incident
+     * is defined (the Clip which is reffered to as BasePlugin that also holds
+     * the sigma instance)
+     */
     onGetContext() {
         this.finalG = this.attrs.animatedAttrs.finalG;
             this.SigmaAnimation = new SigmaAnimation(
@@ -21,6 +26,10 @@ class SigmaAnimPlugin extends MC.TimedIncident {
         this.attrs.attrs.master.children.push(this);
     }
 
+    /**
+     * Secondary initialization when a change happens to the BasePlugin that 
+     * needs to be reflected on the child animPlugins.
+     */
     refreshInstance() {
         this.SigmaAnimation = new SigmaAnimation(
             this.id,
@@ -37,6 +46,10 @@ class SigmaAnimPlugin extends MC.TimedIncident {
         return this;
     }
 
+    /**
+     * Override for get initial value when that function is FIRST called
+     * within Motor Cortext core
+     */
     getScratchValue(mcid, attr) {
         const g = this.context.g;
         return g;
