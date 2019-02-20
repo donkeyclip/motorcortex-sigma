@@ -39,7 +39,7 @@ const anime = new plugins.Sigma(attrs, props);
 edges (E) and clusters (C) (optional). The graph must be an array containing a nodes
 and an edges array. Each of those must contain node and edge objects following this 
 template:
-
+```javascript
 graph.nodes[i] = {
     id: 'n'+i,
     lavel: 'Node ' + i, //user may change this
@@ -56,9 +56,11 @@ graph.edges[i] = {
     size: sizeOfEdge,
     color: colorOfEdge
 }
+```
 
 ### Sigma Instanciation
 Creating a SigmaBasePlugin instance requires certain attributes and properties:
+```javascript
 attrs = {
     attrs:{
         N: numberOfNodes,
@@ -89,11 +91,12 @@ props = {
     html of group,
     containerParameters of host element 
 }
-
+```
 *NOTE* Simply instanciating Sigma will render the given graph.
 
 ### Animating the graph
 Animation Child-Incidents of group are defined as follows:
+```javascript
 new Sigma.SigmaAnimPlugin(
     //attrs
     {
@@ -110,8 +113,8 @@ new Sigma.SigmaAnimPlugin(
         selector: DOM selector of the host element
     }
 );
-And then added to the group as follows:
 groupName.addIncident(childIncidentName, millisecondTimeStart)
+```
 
 
 
