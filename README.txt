@@ -1,9 +1,7 @@
-Author: Vasileios Georgopoulos
-Date: 2/18/2019
-Version: 1.0.0
-----------------------------------
-SIGMA-JS PLUGIN FOR MOTOR CORTEX 2
+# motorcortex-sigmajs
 
+
+## Description
 Sigma-JS library instanciates and renders graphs with any number of nodes and
 edges in a web container. The MotorCortex implementation embeds these instanciates
 and any animations performed on them within Groups of Incidents. Each Group refers 
@@ -14,11 +12,34 @@ Various options are available for the user, from different renderers and display
 properties, to exporting data and images from the rendered graphs (see inner 
 documentation and Sigma-JS plugins implemented in this version below)
 
-INSTRUCTIONS FOR BASIC USE OF SIGMA-JS MC PLUGIN:
+
+## Installation
+```bash
+$ npm install --save @kissmybutton/motorcortex-sigma
+```
+
+## Importing
+
+```javascript
+import MotorCortex from "@kissmybutton/motorcortex";
+import Sigma from "@kissmybutton/motorcortex-sigma";
+```
+
+## Loading
+
+```javascript
+const plugins = MotorCortex.loadPlugin(Sigma);
+const anime = new plugins.Sigma(attrs, props);
+```
+
+## API
+
+### Graph Creation
 -The user can either create their own graph or provide a certain number of nodes (N),
 edges (E) and clusters (C) (optional). The graph must be an array containing a nodes
 and an edges array. Each of those must contain node and edge objects following this 
 template:
+
 graph.nodes[i] = {
     id: 'n'+i,
     lavel: 'Node ' + i, //user may change this
@@ -36,6 +57,7 @@ graph.edges[i] = {
     color: colorOfEdge
 }
 
+### Sigma Instanciation
 Creating a SigmaBasePlugin instance requires certain attributes and properties:
 attrs = {
     attrs:{
@@ -70,6 +92,7 @@ props = {
 
 *NOTE* Simply instanciating Sigma will render the given graph.
 
+### Animating the graph
 Animation Child-Incidents of group are defined as follows:
 new Sigma.SigmaAnimPlugin(
     //attrs
@@ -92,6 +115,8 @@ groupName.addIncident(childIncidentName, millisecondTimeStart)
 
 
 
+
+## SIGMA PLUGINS IMPLEMENTED 
 
 The following plugins of the SigmaJS library are currently supported by the
 MC SigmaJS plugin implementation (most are exclusive to the canvas renderer):

@@ -108,7 +108,7 @@ window.clip = new Sigma.Clip(
         css,
         host,
         html:"<div id='animation1'></div>",
-        containerParams
+        containerParams,
     }
 );
 
@@ -156,7 +156,8 @@ clip.addIncident(animatedInc2, 1000);
 
 window.player = new Player({
     clip,
-    pointerEvents: false
+    pointerEvents: false,
+    clipClass:Sigma.Clip
 });
 
 window.tc = new MotorCortex.TimeCapsule();

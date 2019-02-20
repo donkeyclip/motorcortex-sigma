@@ -1,5 +1,4 @@
 const MC = require("@kissmybutton/motorcortex/");
-const WebComponentContextHandler = require("@kissmybutton/motorcortex/dist/corePlugins/SelfContainedIncidents/helpers/WebComponentContextHandler");
 const sigma = require("sigma");
 
 
@@ -10,7 +9,7 @@ const sigma = require("sigma");
  * @class SigmaBasePlugin
  * @extends {MC.ExtendableClip}
  */
-class SigmaBasePlugin extends MC.ExtendableClip {
+class SigmaBasePlugin extends MC.ExtendableDOMClip {
     /**
      *Creates an instance of SigmaBasePlugin.
      * @param {*} attrs attributes of sigma and graph creatin commands
@@ -22,17 +21,6 @@ class SigmaBasePlugin extends MC.ExtendableClip {
         super(attrs, props);
         this.plugins = {};
         this.children = [];
-
-        var ContextHanlder = null;
-        ContextHanlder = WebComponentContextHandler;
-
-        var contextHanlder = new ContextHanlder(props);
-
-        this.ownContext = contextHanlder.context;
-        this.isTheClip = true;
-        this.rootElement = this.context.rootElement;
-
-        var initializeOneTimePlugIn = false;
         
         this.init();
     }

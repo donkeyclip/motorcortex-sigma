@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
-    "@kissmybutton/motorcortex": "^2.0.1-rc18",
+    "@kissmybutton/motorcortex": "^2.0.1-rc22",
     "@kissmybutton/motorcortex-player": "^1.3.17",
     "babel-loader": "^8.0.5",
     "webpack-cli": "^3.2.1"

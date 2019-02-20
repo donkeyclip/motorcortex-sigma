@@ -9,7 +9,11 @@ module.exports = {
         {
             exportable: SigmaAnimPlugin,
             name: "SigmaAnimPlugin"
-        }
+        },
+        // {
+        //     exportable: clip,
+        //     name: "ClipSigma"
+        // }
     ],
     channel: MyAttrChannel,
     clip
