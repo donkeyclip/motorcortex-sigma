@@ -28,11 +28,11 @@
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@size-limit/preset-big-lib": "^6.0.3",
-    "babel-loader": "^8.0.5",
+    "babel-loader": "^8.2.2",
     "concurrently": "^6.3.0",
     "core-js": "^3.18.3",
     "rimraf": "^3.0.2",
     "size-limit": "^6.0.3",
-    "webpack-cli": "^3.2.1"
+    "webpack-cli": "^4.9.1"
   }
 }
